@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { Button, Card, CardContent, CardHeader, Container, Grid, GridColumn, GridRow } from 'semantic-ui-react';
+import { Button, Card, CardHeader, Container, Grid, GridColumn } from 'semantic-ui-react';
 
 const HomePage = ({ tasks }) => {
   const router = useRouter();
@@ -19,7 +19,13 @@ const HomePage = ({ tasks }) => {
           <Image src="https://static.vecteezy.com/system/resources/previews/004/968/590/original/no-result-data-not-found-concept-illustration-flat-design-eps10-simple-and-modern-graphic-element-for-landing-page-empty-state-ui-infographic-etc-vector.jpg" alt="imagen no data" width={400} height={400} />
 
           <div>
-            <Button primary>Create a Task</Button>
+            <Button
+              //
+              primary
+              onClick={() => router.push('/tasks/new')}
+            >
+              Create a Task
+            </Button>
           </div>
         </GridColumn>
       </Grid>
@@ -34,10 +40,19 @@ const HomePage = ({ tasks }) => {
               <p>{task.description}</p>
             </Card.Content>
             <Card.Content extra>
-              <Button primary onClick={() => router.push(`/tasks/${task.id}`)}>
+              <Button
+                //
+                primary
+                onClick={() => router.push(`/tasks/${task.id}`)}
+              >
                 View
               </Button>
-              <Button>Edit</Button>
+              <Button
+                //
+                onClick={() => router.push(`/tasks/${task.id}/edit`)}
+              >
+                Edit
+              </Button>
             </Card.Content>
           </Card>
         ))}

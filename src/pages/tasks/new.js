@@ -1,15 +1,16 @@
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Form, Grid } from 'semantic-ui-react';
 
-export default function NewTaskPage() {
+export default function NewAndEditTaskPage() {
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
   });
   const [errors, setErrors] = useState({});
+  const [loading, SetLoading] = useState(false);
 
-  const router = useRouter();
+  const { query, push } = useRouter();
 
   const validate = () => {
     let errors = {};
@@ -27,9 +28,15 @@ export default function NewTaskPage() {
 
     if (Object.keys(errors).length) return setErrors(errors);
 
-    await createTask();
+    SetLoading(true);
 
-    router.push('/');
+    if (query.id) {
+      await updateTask();
+    } else {
+      await createTask();
+    }
+
+    push('/');
   };
 
   const createTask = async () => {
@@ -42,11 +49,37 @@ export default function NewTaskPage() {
         body: JSON.stringify(newTask),
       });
     } catch (error) {
-      console.log(error);
+      console.error(error);
+    }
+  };
+
+  const updateTask = async () => {
+    try {
+      await fetch(`http://localhost:3000/api/tasks/${query.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newTask),
+      });
+    } catch (error) {
+      console.error(error);
     }
   };
 
   const handleChange = (e) => setNewTask({ ...newTask, [e.target.name]: e.target.value });
+
+  const getTask = async () => {
+    const res = await fetch(`http://localhost:3000/api/tasks/${query.id}`);
+    const data = await res.json();
+    setNewTask({ title: data.title, description: data.description });
+  };
+
+  useEffect(() => {
+    //
+    if (query.id) getTask();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Grid
@@ -58,7 +91,7 @@ export default function NewTaskPage() {
     >
       <Grid.Row>
         <Grid.Column textAlign="center">
-          <h1>Create Task</h1>
+          <h1>{query.id ? 'Update Task' : 'Create Task'}</h1>
           <Form onSubmit={handleSubmit}>
             <Form.Input
               //
@@ -83,8 +116,9 @@ export default function NewTaskPage() {
               //
               primary
               type="submit"
+              loading={loading}
             >
-              Save
+              {query.id ? 'Update' : 'Create'}
             </Button>
           </Form>
         </Grid.Column>
